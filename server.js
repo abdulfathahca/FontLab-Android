@@ -33,6 +33,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadDir));
+
+const distDir = path.join(__dirname, 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+}
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ----------------------------------------------------
