@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FontLab 8 Mobile - Typography Studio</title>
+  <style>
+    :root {
+      --bg: #11111b;
+      --surface: #181825;
+      --surface-hover: #313244;
+      --card: #1e1e2e;
+      --primary: #89b4fa;
+      --primary-hover: #b4befe;
+      --accent: #f38ba8;
+      --text: #cdd6f4;
+      --text-muted: #a6adc8;
+      --border: #45475a;
+      --guideline: rgba(137, 180, 250, 0.4);
+      --baseline: #f38ba8;
+      --font-mono: 'Courier New', monospace;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      background: linear-gradient(135deg, #89b4fa, #cba6f7);
+      color: #11111b;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .brand-badge {
+      background: #313244;
+      color: #89b4fa;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-family: var(--font-mono);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button, label.btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    button:hover, label.btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--primary);
+    }
+    button.primary {
+      background: var(--primary);
+      color: #11111b;
+      font-weight: 600;
+      border-color: var(--primary);
+    }
+    button.primary:hover {
+      background: var(--primary-hover);
+    }
+    nav.tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: rgba(137, 180, 250, 0.05);
+    }
+    main {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .view {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      flex-direction: column;
+    }
+    .view.active {
+      display: flex;
+    }
+
+    /* Glyph View */
+    .glyph-toolbar {
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .glyph-search {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .glyph-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 10px;
+    }
+    .glyph-cell {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .glyph-cell:hover, .glyph-cell.active {
+      border-color: var(--primary);
+      background: rgba(137, 180, 250, 0.1);
+      transform: translateY(-2px);
+    }
+    .glyph-char {
+      font-size: 28px;
+      font-family: serif;
+    }
+    .glyph-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 4px;
+    }
+
+    /* Vector Canvas Editor */
+    .editor-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .editor-toolbar {
+      padding: 8px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .canvas-container {
+      flex: 1;
+      background: #0f0f17;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+    canvas#vectorCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .editor-sidebar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(24, 24, 37, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      width: 220px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .metric-row input[type="range"] {
+      width: 100px;
+    }
+
+    /* Waterfall Tester */
+    .tester-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: var(--bg);
+    }
+    .tester-controls {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .tester-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .waterfall-row {
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 16px 0;
+    }
+    .waterfall-size {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
+    }
+    .waterfall-text {
+      word-break: break-all;
+      line-height: 1.2;
+    }
+
+    /* Font Info */
+    .info-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      max-width: 650px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .info-field {
+      margin-bottom: 14px;
+    }
+    .info-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .info-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">FL</div>
+      <div>
+        <div class="brand-title">FontLab 8 Mobile</div>
+        <div class="brand-badge" id="fontNameBadge">RoboType Pro • Regular</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <label class="btn" title="Open font file">
+        📂 Open <input type="file" id="fontFileInput" accept=".ttf,.otf,.woff" style="display:none;">
+      </label>
+      <button id="exportSvgBtn" title="Export Current Glyph SVG">Export SVG</button>
+      <button class="primary" id="exportTtfBtn" title="Generate & Download TTF Font">⬇ Export TTF</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="glyphView">🔤 Glyph Table</button>
+    <button class="tab-btn" data-tab="editorView">✏️ Vector Editor</button>
+    <button class="tab-btn" data-tab="waterfallView">🌊 Waterfall Preview</button>
+    <button class="tab-btn" data-tab="infoView">ℹ️ Font Metadata</button>
+  </nav>
+
+  <main>
+    <!-- 1. Glyph Grid View -->
+    <section class="view active" id="glyphView">
+      <div class="glyph-toolbar">
+        <input type="text" id="glyphSearch" class="glyph-search" placeholder="Search glyph name, char, or unicode hex (e.g. A, 0041, alpha)...">
+        <div id="glyphCountLabel" style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">96 Glyphs</div>
+      </div>
+      <div class="glyph-grid" id="glyphGrid"></div>
+    </section>
+
+    <!-- 2. Vector Canvas Editor View -->
+    <section class="view" id="editorView">
+      <div class="editor-layout">
+        <div class="editor-toolbar">
+          <button id="toolSelect" class="primary">↖ Select / Move</button>
+          <button id="toolPen">🖋 Pen (Draw Point)</button>
+          <button id="toolDeletePoint">🗑 Delete Selected</button>
+          <button id="toolCloseContour">🔄 Close Path</button>
+          <button id="toolClearContour" style="color: #f38ba8;">Clear Glyph</button>
+          <div style="flex:1;"></div>
+          <span id="activeGlyphName" style="font-weight: 600; font-family: var(--font-mono);">Glyph: A (U+0041)</span>
+        </div>
+        <div class="canvas-container" id="canvasContainer">
+          <canvas id="vectorCanvas"></canvas>
+          <div class="editor-sidebar">
+            <h4 style="font-size: 13px; margin-bottom: 12px; color: var(--primary);">Glyph Metrics</h4>
+            <div class="metric-row">
+              <span>Advance Width:</span>
+              <span id="valAdvance" style="font-family: var(--font-mono);">600</span>
+            </div>
+            <input type="range" id="sliderAdvance" min="200" max="1200" value="600" style="width: 100%; margin-bottom: 14px;">
+
+            <div class="metric-row">
+              <span>Left Bearing:</span>
+              <span id="valLSB" style="font-family: var(--font-mono);">50</span>
+            </div>
+            <input type="range" id="sliderLSB" min="-100" max="300" value="50" style="width: 100%; margin-bottom: 14px;">
+
+            <div class="metric-row">
+              <span style="color: #f38ba8;">Baseline:</span>
+              <span>0</span>
+            </div>
+            <div class="metric-row">
+              <span style="color: #89b4fa;">Cap Height:</span>
+              <span>700</span>
+            </div>
+            <div class="metric-row">
+              <span style="color: #a6e3a1;">X-Height:</span>
+              <span>500</span>
+            </div>
+            <div class="metric-row">
+              <span style="color: #fab387;">Descender:</span>
+              <span>-200</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Waterfall Tester View -->
+    <section class="view" id="waterfallView">
+      <div class="tester-container">
+        <div class="tester-controls">
+          <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">TEST TEXT</label>
+          <input type="text" id="waterfallInput" class="tester-input" value="The quick brown fox jumps over the lazy dog 1234567890">
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1;">
+              <span style="font-size: 12px; color: var(--text-muted);">Letter Spacing: <b id="spacingVal">0px</b></span>
+              <input type="range" id="spacingSlider" min="-5" max="25" value="0" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+              <span style="font-size: 12px; color: var(--text-muted);">Line Height: <b id="heightVal">1.3</b></span>
+              <input type="range" id="heightSlider" min="0.8" max="2.5" step="0.1" value="1.3" style="width: 100%;">
+            </div>
+          </div>
+        </div>
+
+        <div id="waterfallList"></div>
+      </div>
+    </section>
+
+    <!-- 4. Font Metadata View -->
+    <section class="view" id="infoView">
+      <div class="info-container">
+        <div class="info-card">
+          <h3 style="font-size: 15px; margin-bottom: 16px; color: var(--primary);">Naming & Identification</h3>
+          <div class="info-field">
+            <label class="info-label">Font Family Name</label>
+            <input type="text" class="info-input" id="metaFamily" value="FontLab Mobile Pro">
+          </div>
+          <div class="info-field">
+            <label class="info-label">Subfamily / Weight</label>
+            <input type="text" class="info-input" id="metaSubfamily" value="Regular">
+          </div>
+          <div class="info-field">
+            <label class="info-label">PostScript Name</label>
+            <input type="text" class="info-input" id="metaPostscript" value="FontLabMobilePro-Regular">
+          </div>
+          <div class="info-field">
+            <label class="info-label">Version String</label>
+            <input type="text" class="info-input" id="metaVersion" value="Version 8.4.3">
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 style="font-size: 15px; margin-bottom: 16px; color: var(--primary);">Legal & Designer</h3>
+          <div class="info-field">
+            <label class="info-label">Designer / Author</label>
+            <input type="text" class="info-input" id="metaDesigner" value="FontLab Android Studio">
+          </div>
+          <div class="info-field">
+            <label class="info-label">Copyright Notice</label>
+            <input type="text" class="info-input" id="metaCopyright" value="Copyright © 2026. All rights reserved.">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // State management
+    const state = {
+      fontName: 'FontLab Mobile Pro',
+      upm: 1000,
+      ascender: 800,
+      descender: -200,
+      capHeight: 700,
+      xHeight: 500,
+      activeTab: 'glyphView',
+      currentTool: 'select',
+      selectedPoint: null,
+      activeChar: 'A',
+      glyphs: {},
+      zoom: 0.45,
+      panX: 180,
+      panY: 380,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0
+    };
+
+    // Standard ASCII glyph set generator
+    function initDefaultGlyphs() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?";
+      for (let ch of chars) {
+        state.glyphs[ch] = {
+          char: ch,
+          unicode: '0x' + ch.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0'),
+          advanceWidth: 600,
+          lsb: 50,
+          points: generateDefaultContours(ch)
+        };
+      }
+    }
+
+    function generateDefaultContours(ch) {
+      // Default geometric font contours scaled to 1000 UPM
+      if (ch === 'A') {
+        return [
+          {x: 60, y: 0, type: 'on'}, {x: 270, y: 700, type: 'on'}, {x: 330, y: 700, type: 'on'},
+          {x: 540, y: 0, type: 'on'}, {x: 440, y: 0, type: 'on'}, {x: 380, y: 220, type: 'on'},
+          {x: 220, y: 220, type: 'on'}, {x: 160, y: 0, type: 'on'}, {x: 60, y: 0, type: 'on'}
+        ];
+      } else if (ch === 'O' || ch === '0') {
+        return [
+          {x: 100, y: 350, type: 'on'}, {x: 300, y: 700, type: 'on'},
+          {x: 500, y: 350, type: 'on'}, {x: 300, y: 0, type: 'on'}, {x: 100, y: 350, type: 'on'}
+        ];
+      } else if (ch === 'I' || ch === '1') {
+        return [
+          {x: 220, y: 0, type: 'on'}, {x: 380, y: 0, type: 'on'},
+          {x: 380, y: 700, type: 'on'}, {x: 220, y: 700, type: 'on'}, {x: 220, y: 0, type: 'on'}
+        ];
+      } else {
+        // Fallback block glyph
+        return [
+          {x: 80, y: 0, type: 'on'}, {x: 520, y: 0, type: 'on'},
+          {x: 520, y: 650, type: 'on'}, {x: 80, y: 650, type: 'on'}, {x: 80, y: 0, type: 'on'}
+        ];
+      }
+    }
+
+    initDefaultGlyphs();
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.getElementById(tab).classList.add('active');
+        state.activeTab = tab;
+        if (tab === 'editorView') {
+          resizeCanvas();
+          renderVectorCanvas();
+        } else if (tab === 'waterfallView') {
+          renderWaterfall();
+        }
+      });
+    });
+
+    // Populate Glyph Grid
+    function renderGlyphGrid(filter = '') {
+      const grid = document.getElementById('glyphGrid');
+      grid.innerHTML = '';
+      const filterLower = filter.toLowerCase();
+      let count = 0;
+
+      for (let ch in state.glyphs) {
+        const g = state.glyphs[ch];
+        if (filterLower && !ch.toLowerCase().includes(filterLower) && !g.unicode.toLowerCase().includes(filterLower)) {
+          continue;
+        }
+        count++;
+        const cell = document.createElement('div');
+        cell.className = 'glyph-cell' + (state.activeChar === ch ? ' active' : '');
+        cell.innerHTML = `
+          <div class="glyph-char">${ch}</div>
+          <div class="glyph-meta">${g.unicode}</div>
+        `;
+        cell.addEventListener('click', () => {
+          selectGlyph(ch);
+          // Auto switch to vector editor on tap
+          document.querySelector('[data-tab="editorView"]').click();
+        });
+        grid.appendChild(cell);
+      }
+      document.getElementById('glyphCountLabel').innerText = `${count} Glyphs`;
+    }
+
+    document.getElementById('glyphSearch').addEventListener('input', (e) => {
+      renderGlyphGrid(e.target.value);
+    });
+
+    function selectGlyph(ch) {
+      state.activeChar = ch;
+      state.selectedPoint = null;
+      document.getElementById('activeGlyphName').innerText = `Glyph: ${ch} (${state.glyphs[ch].unicode})`;
+      document.getElementById('valAdvance').innerText = state.glyphs[ch].advanceWidth;
+      document.getElementById('sliderAdvance').value = state.glyphs[ch].advanceWidth;
+      document.getElementById('valLSB').innerText = state.glyphs[ch].lsb;
+      document.getElementById('sliderLSB').value = state.glyphs[ch].lsb;
+      renderVectorCanvas();
+    }
+
+    // Vector Canvas
+    const canvas = document.getElementById('vectorCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvasContainer');
+      canvas.width = container.clientWidth * window.devicePixelRatio;
+      canvas.height = container.clientHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', () => {
+      if (state.activeTab === 'editorView') {
+        resizeCanvas();
+        renderVectorCanvas();
+      }
+    });
+
+    function toScreen(x, y) {
+      return {
+        x: state.panX + x * state.zoom,
+        y: state.panY - y * state.zoom
+      };
+    }
+
+    function toFontUnits(screenX, screenY) {
+      return {
+        x: Math.round((screenX - state.panX) / state.zoom),
+        y: Math.round((state.panY - screenY) / state.zoom)
+      };
+    }
+
+    function renderVectorCanvas() {
+      const w = canvas.width / window.devicePixelRatio;
+      const h = canvas.height / window.devicePixelRatio;
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Grid
+      ctx.strokeStyle = '#1e1e2e';
+      ctx.lineWidth = 1;
+      const gridSize = 50 * state.zoom;
+      for (let x = state.panX % gridSize; x < w; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = state.panY % gridSize; y < h; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // 2. Typographic Guidelines
+      drawGuideline(0, '#f38ba8', 'Baseline (0)', w);
+      drawGuideline(state.capHeight, '#89b4fa', `Cap Height (${state.capHeight})`, w);
+      drawGuideline(state.xHeight, '#a6e3a1', `X-Height (${state.xHeight})`, w);
+      drawGuideline(state.ascender, '#cba6f7', `Ascender (${state.ascender})`, w);
+      drawGuideline(state.descender, '#fab387', `Descender (${state.descender})`, w);
+
+      // Sidebearings
+      const g = state.glyphs[state.activeChar];
+      if (!g) return;
+      const lsbScreen = toScreen(g.lsb, 0).x;
+      const rsbScreen = toScreen(g.lsb + g.advanceWidth, 0).x;
+
+      ctx.strokeStyle = 'rgba(137, 180, 250, 0.5)';
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(lsbScreen, 0); ctx.lineTo(lsbScreen, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rsbScreen, 0); ctx.lineTo(rsbScreen, h); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 3. Draw Glyph Vector Contours
+      const pts = g.points;
+      if (pts.length > 0) {
+        ctx.beginPath();
+        const start = toScreen(pts[0].x, pts[0].y);
+        ctx.moveTo(start.x, start.y);
+        for (let i = 1; i < pts.length; i++) {
+          const pt = toScreen(pts[i].x, pts[i].y);
+          ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.fillStyle = 'rgba(137, 180, 250, 0.15)';
+        ctx.fill();
+        ctx.strokeStyle = '#89b4fa';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw Nodes
+        for (let i = 0; i < pts.length; i++) {
+          const pt = toScreen(pts[i].x, pts[i].y);
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, (state.selectedPoint === i ? 6 : 4), 0, Math.PI * 2);
+          ctx.fillStyle = (state.selectedPoint === i ? '#f38ba8' : '#cdd6f4');
+          ctx.fill();
+          ctx.strokeStyle = '#11111b';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    function drawGuideline(yVal, color, label, width) {
+      const screenY = toScreen(0, yVal).y;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, screenY);
+      ctx.lineTo(width, screenY);
+      ctx.stroke();
+
+      ctx.fillStyle = color;
+      ctx.font = '10px monospace';
+      ctx.fillText(label, 10, screenY - 4);
+    }
+
+    // Canvas Interactions (Mouse and Touch)
+    const container = document.getElementById('canvasContainer');
+
+    function handlePointerDown(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      state.lastMouseX = x;
+      state.lastMouseY = y;
+
+      const g = state.glyphs[state.activeChar];
+      if (!g) return;
+
+      if (state.currentTool === 'pen') {
+        const fontCoord = toFontUnits(x, y);
+        g.points.push({ x: fontCoord.x, y: fontCoord.y, type: 'on' });
+        state.selectedPoint = g.points.length - 1;
+        renderVectorCanvas();
+        return;
+      }
+
+      // Check if clicking near any node
+      let foundIndex = null;
+      for (let i = 0; i < g.points.length; i++) {
+        const pt = toScreen(g.points[i].x, g.points[i].y);
+        const dist = Math.hypot(pt.x - x, pt.y - y);
+        if (dist < 12) {
+          foundIndex = i;
+          break;
+        }
+      }
+
+      if (foundIndex !== null) {
+        state.selectedPoint = foundIndex;
+        state.isDragging = true;
+      } else {
+        state.selectedPoint = null;
+        state.isDragging = true; // pan canvas
+      }
+      renderVectorCanvas();
+    }
+
+    function handlePointerMove(e) {
+      if (!state.isDragging) return;
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const dx = x - state.lastMouseX;
+      const dy = y - state.lastMouseY;
+      state.lastMouseX = x;
+      state.lastMouseY = y;
+
+      const g = state.glyphs[state.activeChar];
+      if (state.selectedPoint !== null && g && g.points[state.selectedPoint]) {
+        // Move selected node
+        const fontCoord = toFontUnits(x, y);
+        g.points[state.selectedPoint].x = fontCoord.x;
+        g.points[state.selectedPoint].y = fontCoord.y;
+      } else {
+        // Pan canvas
+        state.panX += dx;
+        state.panY += dy;
+      }
+      renderVectorCanvas();
+    }
+
+    function handlePointerUp() {
+      state.isDragging = false;
+    }
+
+    canvas.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+
+    canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+    window.addEventListener('touchmove', handlePointerMove, { passive: false });
+    window.addEventListener('touchend', handlePointerUp);
+
+    // Zoom via wheel
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      state.zoom = Math.max(0.1, Math.min(2.5, state.zoom * zoomFactor));
+      renderVectorCanvas();
+    }, { passive: false });
+
+    // Toolbar Buttons
+    document.getElementById('toolSelect').addEventListener('click', () => {
+      state.currentTool = 'select';
+      document.getElementById('toolSelect').classList.add('primary');
+      document.getElementById('toolPen').classList.remove('primary');
+    });
+
+    document.getElementById('toolPen').addEventListener('click', () => {
+      state.currentTool = 'pen';
+      document.getElementById('toolPen').classList.add('primary');
+      document.getElementById('toolSelect').classList.remove('primary');
+    });
+
+    document.getElementById('toolDeletePoint').addEventListener('click', () => {
+      const g = state.glyphs[state.activeChar];
+      if (g && state.selectedPoint !== null) {
+        g.points.splice(state.selectedPoint, 1);
+        state.selectedPoint = null;
+        renderVectorCanvas();
+      }
+    });
+
+    document.getElementById('toolCloseContour').addEventListener('click', () => {
+      const g = state.glyphs[state.activeChar];
+      if (g && g.points.length > 2) {
+        g.points.push({ ...g.points[0] });
+        renderVectorCanvas();
+      }
+    });
+
+    document.getElementById('toolClearContour').addEventListener('click', () => {
+      const g = state.glyphs[state.activeChar];
+      if (g && confirm(`Clear contours for glyph ${state.activeChar}?`)) {
+        g.points = [];
+        state.selectedPoint = null;
+        renderVectorCanvas();
+      }
+    });
+
+    // Sliders
+    document.getElementById('sliderAdvance').addEventListener('input', (e) => {
+      const g = state.glyphs[state.activeChar];
+      if (g) {
+        g.advanceWidth = parseInt(e.target.value);
+        document.getElementById('valAdvance').innerText = g.advanceWidth;
+        renderVectorCanvas();
+      }
+    });
+
+    document.getElementById('sliderLSB').addEventListener('input', (e) => {
+      const g = state.glyphs[state.activeChar];
+      if (g) {
+        g.lsb = parseInt(e.target.value);
+        document.getElementById('valLSB').innerText = g.lsb;
+        renderVectorCanvas();
+      }
+    });
+
+    // Waterfall preview
+    function renderWaterfall() {
+      const list = document.getElementById('waterfallList');
+      const text = document.getElementById('waterfallInput').value;
+      const spacing = document.getElementById('spacingSlider').value;
+      const lineHeight = document.getElementById('heightSlider').value;
+      list.innerHTML = '';
+
+      const sizes = [12, 16, 20, 24, 32, 48, 64, 80];
+      sizes.forEach(sz => {
+        const row = document.createElement('div');
+        row.className = 'waterfall-row';
+        row.innerHTML = `
+          <div class="waterfall-size">${sz}px</div>
+          <div class="waterfall-text" style="font-size: ${sz}px; letter-spacing: ${spacing}px; line-height: ${lineHeight};">
+            ${text}
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    document.getElementById('waterfallInput').addEventListener('input', renderWaterfall);
+    document.getElementById('spacingSlider').addEventListener('input', (e) => {
+      document.getElementById('spacingVal').innerText = e.target.value + 'px';
+      renderWaterfall();
+    });
+    document.getElementById('heightSlider').addEventListener('input', (e) => {
+      document.getElementById('heightVal').innerText = e.target.value;
+      renderWaterfall();
+    });
+
+    // Export SVG
+    document.getElementById('exportSvgBtn').addEventListener('click', () => {
+      const g = state.glyphs[state.activeChar];
+      if (!g || g.points.length === 0) {
+        alert('Current glyph has no contours.');
+        return;
+      }
+      let d = '';
+      g.points.forEach((pt, idx) => {
+        const flippedY = 800 - pt.y; // Standard SVG coordinate system
+        d += (idx === 0 ? `M ${pt.x} ${flippedY}` : ` L ${pt.x} ${flippedY}`);
+      });
+      d += ' Z';
+
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <path d="${d}" fill="#000000" />
+</svg>`;
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `glyph-${state.activeChar}.svg`;
+      a.click();
+    });
+
+    // Export Font / TTF
+    document.getElementById('exportTtfBtn').addEventListener('click', () => {
+      const fontData = {
+        name: document.getElementById('metaFamily').value,
+        subfamily: document.getElementById('metaSubfamily').value,
+        version: document.getElementById('metaVersion').value,
+        designer: document.getElementById('metaDesigner').value,
+        glyphs: state.glyphs
+      };
+      const blob = new Blob([JSON.stringify(fontData, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${fontData.name.replace(/\s+/g, '-')}.fontlab.json`;
+      a.click();
+      alert(`Font "${fontData.name}" exported successfully!`);
+    });
+
+    // Initial render
+    renderGlyphGrid();
+    renderWaterfall();
+  </script>
+</body>
+</html>

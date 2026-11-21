@@ -1,0 +1,6 @@
+bin/
+*.apk
+*.zip
+*.dex
+*.keystore
+src/com/antigravity/fontlab/R.java
